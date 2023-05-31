@@ -31,6 +31,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "b0bde15a-f3fc-43ec-a853-31fafffd0f55",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -124,23 +133,23 @@
                 },
                 {
                     "name": "",
-                    "id": "8817855c-a259-4c97-bb6f-bb937ad52477",
+                    "id": "2dc05887-f721-4a0a-a09e-5b718052488d",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "MouseKeyboard",
-                    "action": "Attack",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "31861cec-0a3a-4589-b50f-4c32076c715e",
-                    "path": "<Gamepad>/buttonWest",
+                    "id": "15179ce0-0803-4c03-89ab-c26a82e6fba0",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "Controller",
-                    "action": "Attack",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

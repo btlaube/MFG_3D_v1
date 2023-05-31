@@ -5,69 +5,93 @@ using UnityEngine.InputSystem;
 
 public class PlacementSystem : MonoBehaviour
 {
-    [SerializeField] GameObject mouseIndicator, cellIndicator;
+    [SerializeField] GameObject cellIndicator;
     [SerializeField] private InputManager inputManager;
     [SerializeField] private Grid grid;
 
+    private PlayerInventory playerInventory;
+    private GridManager gridManager;
+
     private Camera m_Camera;
+
+    private PlayerInput playerInput;
+    private Vector3 mousePosition;
+    private Vector3Int gridPosition;
+    private bool holdingObject = false;
 
     void Awake()
     {
         m_Camera = Camera.main;
+        playerInventory = GetComponentInParent<PlayerInventory>();
+        gridManager = GameObject.Find("Grid").GetComponent<GridManager>();
+
+        playerInput = new PlayerInput();
+        playerInput.Player.Enable();
     }
 
+    private void OnEnable() {
+        playerInput.Player.Interact.performed += MoveObject;
+    }
+
+    private void OnDisable() {
+        playerInput.Player.Interact.performed -= MoveObject;
+    }
 
     private void Update() {
-        Vector3 mousePosition = inputManager.GetSelectedMapPositionPlayerView();
-        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
-        mouseIndicator.transform.position = mousePosition;
+        //Move active cell indicator
+        mousePosition = inputManager.GetSelectedMapPositionPlayerView();
+        gridPosition = grid.WorldToCell(mousePosition);
         cellIndicator.transform.position = grid.CellToWorld(gridPosition);
+    }
 
-
-        //Check for mouse input
-        Mouse mouse = Mouse.current;
-        if (mouse.leftButton.wasPressedThisFrame)
+    private void MoveObject(InputAction.CallbackContext context)
+    {
+        if (holdingObject)
         {
-            // GameObject clickedObject = CheckClickedObject(mouse);
-            Collider[] colliders;
-            if((colliders = Physics.OverlapSphere(grid.CellToWorld(gridPosition), 0.5f /* Radius */)).Length > 1) //Presuming the object you are testing also has a collider 0 otherwise
+            if(CheckPlacement(playerInventory.heldObject))
             {
-                foreach(var collider in colliders)
+                playerInventory.heldObject.GetComponent<PlaceableObject>().StopPlacingObject();
+                holdingObject = false;
+            }
+        }
+        else
+        {
+            // if((colliders = Physics.OverlapSphere(grid.CellToWorld(gridPosition), 0.5f)).Length > 1)
+            if(gridManager.objectsOnGrid.Count > 1)
+            {
+                foreach(GameObject boardObject in gridManager.objectsOnGrid)
                 {
-                    Debug.Log(collider.name);
-                    var go = collider.gameObject; //This is the game object you collided with
-                    if(go == gameObject) continue; //Skip the object itself
-                    //Do something
-                    PlaceableObject placeableObject = go.GetComponentInParent<PlaceableObject>();
-                    placeableObject.StartPlacingObject();
-                    return;
+                    if(boardObject.transform.position == grid.CellToWorld(gridPosition))
+                    {
+                        var go = boardObject.gameObject;
+                        if(go == gameObject) continue;
+                        playerInventory.HoldMovableObject(boardObject);
+                        PlaceableObject placeableObject = go.GetComponentInParent<PlaceableObject>();
+                        if (placeableObject != null)
+                        {
+                            placeableObject.StartPlacingObject();
+                            holdingObject = true;
+                        }
+                        //Return after picking up one object
+                        return;
+                    }
                 }
             }
-            // if (clickedObject != null)
-            // {
-            //     PlaceableObject placeableObject = clickedObject.GetComponentInParent<PlaceableObject>();
-            //     placeableObject.StartPlacingObject();
-            // }
-            // if (moveableObject != null)
-            // {
-            //     moveableObject.StartPlacingObject();
-            // }
         }
     }
 
-    private GameObject CheckClickedObject(Mouse mouse)
+// Returns true if the object can be placed in its current location; false otherwise (if there is already a board object in the current location).
+    private bool CheckPlacement(GameObject objectToPlace)
     {
-        Vector3 mousePosition = mouse.position.ReadValue();
-        Ray ray = m_Camera.ScreenPointToRay(mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        foreach(GameObject boardObject in gridManager.objectsOnGrid)
         {
-            // return (hit.collider.gameObject.tag == "MoveableObject") ? hit.collider.gameObject : null;
-            if (hit.collider.gameObject.tag == "MoveableObject")
+            if(boardObject == objectToPlace) continue; //skip objectToPlace
+            if(boardObject.transform.position == objectToPlace.transform.position)
             {
-                Debug.Log(hit.collider.gameObject);
-                return hit.collider.gameObject;
+                return false;
             }
         }
-        return null;
+        return true;
     }
+
 }

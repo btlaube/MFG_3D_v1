@@ -7,7 +7,6 @@ public class PlaceableObject : MonoBehaviour
 {
     [SerializeField] private InputManager inputManager;
     [SerializeField] private Grid grid;
-    [SerializeField] private GameObject visualObject;
 
     private bool isPlacingObject = false;
     private Vector3 initialPosition;
@@ -20,37 +19,10 @@ public class PlaceableObject : MonoBehaviour
 
     void Update()
     {
-        Mouse mouse = Mouse.current;
-        if (mouse.leftButton.wasPressedThisFrame)
-        {
-            if (!isPlacingObject)
-            {
-                if (CheckClickedObject(mouse))
-                {
-                    // StartPlacingObject();
-                }
-            }
-            else
-            {
-                StopPlacingObject();
-            }
-        }
-
         if (isPlacingObject)
         {
             UpdateObjectPosition();
         }
-    }
-
-    private bool CheckClickedObject(Mouse mouse)
-    {
-        Vector3 mousePosition = mouse.position.ReadValue();
-        Ray ray = m_Camera.ScreenPointToRay(mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
-        {
-            return (hit.collider.gameObject == visualObject);
-        }
-        return false;
     }
 
     public void StartPlacingObject()
@@ -59,7 +31,7 @@ public class PlaceableObject : MonoBehaviour
         initialPosition = transform.position;
     }
 
-    private void StopPlacingObject()
+    public void StopPlacingObject()
     {
         isPlacingObject = false;
     }
