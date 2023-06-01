@@ -7,6 +7,12 @@ public class PlayerInventory : MonoBehaviour
 {
     public GameObject heldObject;
     [SerializeField] private Transform heldObjectParent;
+    [SerializeField] private List<GameObject> materialsInventory;
+
+    private void Awake()
+    {
+        materialsInventory = new List<GameObject>();
+    }
 
     public void HoldMovableObject(GameObject objectToEquip)
     {
@@ -17,4 +23,10 @@ public class PlayerInventory : MonoBehaviour
     {
         heldObject = null;
     }
+
+    public void PickUpMaterial(GameObject material)
+    {
+        materialsInventory.Add(material);
+    }
+
 }
